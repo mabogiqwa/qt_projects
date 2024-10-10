@@ -73,8 +73,12 @@ void ChangeItemDialog::on_okButton_clicked()
     QString description = descriptionLineEdit->text();
     int numOfStock = stockLineEdit->value();
     double price = priceLineEdit->value();
+    int lengthOfString = barcode.length()
 
     if (barcode.isEmpty())
+    {
+        QMessageBox::warning(nullptr,"Warning","Barcode is empty!");
+    } else if (lengthOfString < 13 || lengthOfString > 13)
     {
         QMessageBox::warning(nullptr,"Warning","Barcode is empty!");
     }
