@@ -1,5 +1,6 @@
 #include "changeitemdialog.h"
 #include "item.h"
+#include "nlpmanager.h"
 
 ChangeItemDialog::ChangeItemDialog(QWidget *parent)
     : QDialog(parent)
@@ -73,33 +74,60 @@ void ChangeItemDialog::on_okButton_clicked()
     QString description = descriptionLineEdit->text();
     int numOfStock = stockLineEdit->value();
     double price = priceLineEdit->value();
-    int lengthOfString = barcode.length()
+    int lengthOfBarcode = barcode.length();
 
+    // Check barcode validity
+    bool onlyDigits = true;
+    for (const QChar &ch : barcode)
+    {
+        if (!ch.isDigit()) {
+            onlyDigits = false;
+            QMessageBox::warning(nullptr, "Warning", "Barcode entry must only contain digits!");
+            return; // Exit the function if the barcode is invalid
+        }
+    }
+
+    // Perform input validations
     if (barcode.isEmpty())
     {
-        QMessageBox::warning(nullptr,"Warning","Barcode is empty!");
-    } else if (lengthOfString < 13 || lengthOfString > 13)
+        QMessageBox::warning(nullptr, "Warning", "Barcode is empty!");
+    }
+    else if ((lengthOfBarcode < 13 || lengthOfBarcode > 13) && onlyDigits)
     {
-        QMessageBox::warning(nullptr,"Warning","Barcode is empty!");
+        QMessageBox::warning(nullptr, "Warning", "Barcode must be strictly 13 digits!");
     }
     else if (description.isEmpty())
     {
-        QMessageBox::warning(nullptr,"Warning","Description is empty!");
+        QMessageBox::warning(nullptr, "Warning", "Description is empty!");
     }
     else if (numOfStock <= 0 || numOfStock > 2000)
     {
-        QMessageBox::warning(nullptr,"Warning","Invalid input for stock(Value between 0 and 2000)!");
+        QMessageBox::warning(nullptr, "Warning", "Invalid input for stock (Value between 0 and 2000)!");
     }
     else if (price <= 0 || price > 10000)
     {
-        QMessageBox::warning(nullptr,"Warning","Invalid input for price(Value between R0 and R10,000");
-    } else
-    {
-        Item someItem(barcode,description,numOfStock,price);
-
-        connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
+        QMessageBox::warning(nullptr, "Warning", "Invalid input for price (Value between R0 and R10,000)!");
     }
+    // Check for incoherence in the description
+    NLPManager nlpManager; // Ensure you've instantiated your NLPManager properly
+    nlpManager.analyzeText(description); // Analyze the text using the NLP API
 
+    // Connect the result signal to a slot to handle the NLP response
+    connect(&nlpManager, &NLPManager::textAnalysisComplete, this, [=](const QString& analysisResult) {
+    if (analysisResult.isEmpty() || analysisResult == description) // If no correction or empty
+    {
+        QMessageBox::warning(nullptr, "Warning", "Incoherent input for description, please enter a valid value.");
+    }
+    else
+    {
+                Item someItem(barcode, analysisResult, numOfStock, price);
+                connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
+    }
+        });
+
+        // Call the analysis function again to avoid race conditions
+        nlpManager.analyzeText(description);
+    }
 }
 
 ChangeItemDialog::~ChangeItemDialog()
@@ -158,3 +186,4 @@ void ChangeItemDialog::disableBarcodeField()
 {
     barcodeLineEdit->setReadOnly(true);
 }
+
