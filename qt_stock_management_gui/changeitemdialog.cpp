@@ -92,7 +92,7 @@ void ChangeItemDialog::on_okButton_clicked()
     {
         QMessageBox::warning(nullptr, "Warning", "Barcode is empty!");
     }
-    else if ((lengthOfBarcode < 13 || lengthOfBarcode > 13) && onlyDigits)
+    else if ((lengthOfBarcode < 13 || lengthOfBarcode > 13))
     {
         QMessageBox::warning(nullptr, "Warning", "Barcode must be strictly 13 digits!");
     }
