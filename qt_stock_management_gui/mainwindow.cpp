@@ -16,12 +16,6 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow{parent}
 {
-
-    //readInputFromFile();
-    //QPushButton *button = new QPushButton("Hello",this);
-    //setCentralWidget(button); //We are telling Qt that this button
-    //will be the central widget
-
     textEdit = new QTextEdit(this);
 
     textEdit->setReadOnly(true);
@@ -72,10 +66,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(changeAction,&QAction::triggered,this,[=]() {
         MainWindow::on_changeButton_clicked();
     });
-
-    //connect(addAction,&QAction::triggered,this,[=](){
-    //    MainWindow::on_addButton_clicked();
-    //});
 
     //Add menubar
     QMenu *fileMenu = menuBar()->addMenu("File");
@@ -140,20 +130,6 @@ MainWindow::MainWindow(QWidget *parent)
     fileToolBar->addSeparator();
     fileToolBar->addWidget(label6);
     //addToolBar(fileToolBar);
-
-    /*
-    QMapIterator<QString, QPair<QString, int>> it(itemData);
-
-    while (it.hasNext())
-    {
-        it.next();
-        QString barcode = it.key();
-        QString description = it.value().first;
-        int stockAmount = it.value().second;
-        qDebug() << "Barcode: " << barcode << " Description: " << description;
-        qDebug() << "Stock Amount: " << stockAmount;
-    }
-    */
 }
 
 
@@ -228,20 +204,7 @@ void MainWindow::on_changeButton_clicked()
         if (someItem == nullptr)
             QMessageBox::information(nullptr, "Barcode Not Found", "The entered barcode is not in the database.");
         else {
-            /*
-            QLineEdit *barcodeLineEdit = new QLineEdit(this);
-            QLineEdit *descriptionLineEdit = new QLineEdit(this);
-            QSpinBox *stockSpinBox = new QSpinBox(this);
-            QDoubleSpinBox *priceDoubleSpinBox = new QDoubleSpinBox(this);
-
-            QFormLayout *formLayout = new QFormLayout(this);
-            formLayout->addRow("Barcode: ", barcodeLineEdit);
-            formLayout->addRow("Description", descriptionLineEdit);
-            formLayout->addRow("Stock: ", stockSpinBox);
-            formLayout->addRow("Price: ", priceDoubleSpinBox);
-
-            bool ok = QInputDialog::getDouble(nullptr,"Enter Item Details", "Item Details:", 0.0, -2147483647.0, 2147483647.0, 2, &ok);
-            */
+            
             ChangeItemDialog *changeDialog = new ChangeItemDialog(this);
 
             QString oldBarcode;
