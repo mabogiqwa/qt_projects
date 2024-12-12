@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     QObject::connect(saveAction, &QAction::triggered, this, [=](){
-            MainWindow::on_saveButton_clicked();
+        MainWindow::on_saveButton_clicked();
     });
 
     //QPushButton *openButton = new QPushButton("Open",this);
@@ -323,6 +323,8 @@ void MainWindow::on_addButton_clicked()
 void MainWindow::on_removeButton_clicked()
 {
     bool ok;
+    int index = 0;
+    QStringList someList = theList.getStringList();
     QString barcode = QInputDialog::getText(this, "Delete Item", "Enter Barcode:",
                                             QLineEdit::Normal, QString(), &ok);
 
@@ -330,18 +332,54 @@ void MainWindow::on_removeButton_clicked()
     {
         bool exists = theList.searchForBarcode(barcode);
 
-        if(exists)
-        {
+        if (exists) {
             QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "Delete Item", "Are you sure you want to delete this item?",
-                                          QMessageBox::Yes|QMessageBox::No);
+            reply = QMessageBox::question(this, "Delete Item",
+                                          "Are you sure you want to delete this item?",
+                                          QMessageBox::Yes | QMessageBox::No);
 
-            if (reply == QMessageBox::Yes)
-            {
+            if (reply == QMessageBox::Yes) {
+                // Remove item from theList
                 theList.removeItem(barcode);
+
+                // Clear the QTextEdit content
+                if (textEdit) { // Ensure textEdit is valid
+                    textEdit->clear();
+                }
+
+                // Rebuild the content in QTextEdit
+                int index = 0; // Ensure index is initialized
+                for (const QString &item : someList) {
+                    // Validate index and ensure bounds
+                    if (index < someList.size()) {
+                        QString b = someList.at(index);
+                        Item *someItem = theList.searchForItem(b);
+
+                        // Check for nullptr before accessing someItem
+                        if (someItem) {
+                            QString barcode = someItem->getBarcode();
+                            QString des = someItem->getDescription();
+                            int stock = someItem->getStock();
+                            double price = someItem->getPrice();
+
+                            QString stockVal = QString::number(stock);
+                            QString priceVal = QString::number(price);
+
+                            QString itemFeatures = barcode + "\t" + des + "\t" + stockVal + "\tR" + priceVal;
+
+                            // Append item features to QTextEdit
+                            textEdit->append(itemFeatures);
+                        } else {
+                            qDebug() << "Item not found in the list for barcode:" << b;
+                        }
+                    } else {
+                        qDebug() << "Index out of bounds: " << index;
+                    }
+                    index++; // Increment index
+                }
             }
         } else {
-           QMessageBox::information(nullptr, "Item Not Found", "The entered barcode is not in the database.");
+            QMessageBox::information(nullptr, "Item Not Found", "The entered barcode is not in the database.");
         }
     }
 }
