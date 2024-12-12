@@ -18,6 +18,7 @@ public:
     void saveItemsIntoFile(const QString filename);
     QStringList getStringList() const;
     bool searchForBarcode(QString barcode);
+    const QMap<QString, Item*>& getItemData() const;
     Item* searchForItem(QString barcode);
 signals:
 
