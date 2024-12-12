@@ -106,7 +106,9 @@ void ChangeItemDialog::on_okButton_clicked()
     else if (price <= 0 || price > 10000)
     {
         QMessageBox::warning(nullptr, "Warning", "Invalid input for price (Value between R0 and R10,000)!");
-    }
+    } else {
+        accept();
+    }     
 }
 
 ChangeItemDialog::~ChangeItemDialog()
