@@ -1,6 +1,5 @@
 #include "changeitemdialog.h"
 #include "item.h"
-#include "nlpmanager.h"
 
 ChangeItemDialog::ChangeItemDialog(QWidget *parent)
     : QDialog(parent)
@@ -107,26 +106,6 @@ void ChangeItemDialog::on_okButton_clicked()
     else if (price <= 0 || price > 10000)
     {
         QMessageBox::warning(nullptr, "Warning", "Invalid input for price (Value between R0 and R10,000)!");
-    }
-    // Check for incoherence in the description
-    NLPManager nlpManager; // Ensure you've instantiated your NLPManager properly
-    nlpManager.analyzeText(description); // Analyze the text using the NLP API
-
-    // Connect the result signal to a slot to handle the NLP response
-    connect(&nlpManager, &NLPManager::textAnalysisComplete, this, [=](const QString& analysisResult) {
-    if (analysisResult.isEmpty() || analysisResult == description) // If no correction or empty
-    {
-        QMessageBox::warning(nullptr, "Warning", "Incoherent input for description, please enter a valid value.");
-    }
-    else
-    {
-                Item someItem(barcode, analysisResult, numOfStock, price);
-                connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
-    }
-        });
-
-        // Call the analysis function again to avoid race conditions
-        nlpManager.analyzeText(description);
     }
 }
 
