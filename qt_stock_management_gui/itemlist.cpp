@@ -55,6 +55,10 @@ void ItemList::addItemsFromFile(const QString filename)
     file.close();
 }
 
+const QMap<QString, Item*>& ItemList::getItemData() const {
+    return itemData;
+}
+
 void ItemList::saveItemsIntoFile(const QString filename)
 {
     QFile file(filename);
