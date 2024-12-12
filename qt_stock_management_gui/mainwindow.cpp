@@ -16,6 +16,12 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow{parent}
 {
+
+    //readInputFromFile();
+    //QPushButton *button = new QPushButton("Hello",this);
+    //setCentralWidget(button); //We are telling Qt that this button
+    //will be the central widget
+
     textEdit = new QTextEdit(this);
 
     textEdit->setReadOnly(true);
@@ -66,6 +72,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(changeAction,&QAction::triggered,this,[=]() {
         MainWindow::on_changeButton_clicked();
     });
+
+    //connect(addAction,&QAction::triggered,this,[=](){
+    //    MainWindow::on_addButton_clicked();
+    //});
 
     //Add menubar
     QMenu *fileMenu = menuBar()->addMenu("File");
@@ -130,6 +140,20 @@ MainWindow::MainWindow(QWidget *parent)
     fileToolBar->addSeparator();
     fileToolBar->addWidget(label6);
     //addToolBar(fileToolBar);
+
+    /*
+    QMapIterator<QString, QPair<QString, int>> it(itemData);
+
+    while (it.hasNext())
+    {
+        it.next();
+        QString barcode = it.key();
+        QString description = it.value().first;
+        int stockAmount = it.value().second;
+        qDebug() << "Barcode: " << barcode << " Description: " << description;
+        qDebug() << "Stock Amount: " << stockAmount;
+    }
+    */
 }
 
 
@@ -178,6 +202,18 @@ void MainWindow::on_openButton_clicked()
         textEdit->append(itemFeatures);
         index++;
     }
+
+    /*
+    Item *someItem = theList.searchForItem("6000112500187");
+
+    QString barcode = someItem->getBarcode();
+    QString des = someItem->getDescription();
+
+    QString total = barcode + "\t" + des;
+
+    textEdit->append(total);
+    */
+
 }
 
 void MainWindow::on_changeButton_clicked()
@@ -192,7 +228,20 @@ void MainWindow::on_changeButton_clicked()
         if (someItem == nullptr)
             QMessageBox::information(nullptr, "Barcode Not Found", "The entered barcode is not in the database.");
         else {
-            
+            /*
+            QLineEdit *barcodeLineEdit = new QLineEdit(this);
+            QLineEdit *descriptionLineEdit = new QLineEdit(this);
+            QSpinBox *stockSpinBox = new QSpinBox(this);
+            QDoubleSpinBox *priceDoubleSpinBox = new QDoubleSpinBox(this);
+
+            QFormLayout *formLayout = new QFormLayout(this);
+            formLayout->addRow("Barcode: ", barcodeLineEdit);
+            formLayout->addRow("Description", descriptionLineEdit);
+            formLayout->addRow("Stock: ", stockSpinBox);
+            formLayout->addRow("Price: ", priceDoubleSpinBox);
+
+            bool ok = QInputDialog::getDouble(nullptr,"Enter Item Details", "Item Details:", 0.0, -2147483647.0, 2147483647.0, 2, &ok);
+            */
             ChangeItemDialog *changeDialog = new ChangeItemDialog(this);
 
             QString oldBarcode;
@@ -229,6 +278,10 @@ void MainWindow::on_changeButton_clicked()
 
 void MainWindow::on_addButton_clicked()
 {
+    int index = 0;
+    QStringList someList = theList.getStringList();
+    QString titles;
+
     ChangeItemDialog *addDialog = new ChangeItemDialog;
     if(addDialog->exec() == QDialog::Accepted)
     {
@@ -261,6 +314,37 @@ void MainWindow::on_addButton_clicked()
             Item *newItem = new Item(barcode, description, stockAmount, price);
 
             theList.addItem(newItem);
+
+            if (textEdit) { // Ensure textEdit is valid
+                textEdit->clear();
+            }
+        }
+    }
+
+    // Update the textEdit object
+    if (textEdit) {
+        textEdit->clear(); // Clear existing content in textEdit
+
+        titles = "Barcode\t\tDescription\t\tStock\tPrice";
+
+        textEdit->setPlainText(titles);
+
+
+        // Get itemData via the getter
+        const QMap<QString, Item*>& items = theList.getItemData();
+
+        // Iterate through the map and append item details to the textEdit
+        for (auto it = items.begin(); it != items.end(); ++it) {
+            Item *someItem = it.value(); // Get the Item pointer
+
+            // Format the item details
+            QString itemDetails = QString("%1\t%2\t%3\tR%4")
+                                      .arg(someItem->getBarcode())
+                                      .arg(someItem->getDescription())
+                                      .arg(someItem->getStock())
+                                      .arg(someItem->getPrice(), 0, 'f', 2); // Format price with 2 decimal places
+
+            textEdit->append(itemDetails); // Append to textEdit
         }
     }
 }
