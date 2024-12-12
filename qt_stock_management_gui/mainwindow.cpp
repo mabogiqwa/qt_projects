@@ -178,18 +178,6 @@ void MainWindow::on_openButton_clicked()
         textEdit->append(itemFeatures);
         index++;
     }
-
-    /*
-    Item *someItem = theList.searchForItem("6000112500187");
-
-    QString barcode = someItem->getBarcode();
-    QString des = someItem->getDescription();
-
-    QString total = barcode + "\t" + des;
-
-    textEdit->append(total);
-    */
-
 }
 
 void MainWindow::on_changeButton_clicked()
@@ -263,12 +251,6 @@ void MainWindow::on_addButton_clicked()
                 {
                     Item *someItem = theList.searchForItem(barcode);
                     someItem->setStock(newStock);
-
-                    QString b = someItem->getBarcode();
-                    QString d = someItem->getDescription();
-                    int s = someItem->getStock();
-                    double p = someItem->getPrice();
-
                 }
             }
         } else {
